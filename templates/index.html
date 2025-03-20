@@ -1,0 +1,108 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+</head>
+<style>
+    .hero-section {
+        background-color: #005f73;
+        color: #f8f9fa;
+        padding: 50px 20px;
+        text-align: center;
+        border-radius: 10px;
+        margin-bottom: 40px;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .hero-description {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+    }
+
+    .section {
+        padding: 50px 20px;
+        margin-bottom: 40px;
+        border-radius: 10px;
+        background-color: #e6f7f8;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .section h2 {
+        text-align: center;
+        color: #003366;
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    .problem p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .graph-container {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .graph-container iframe {
+        border: none;
+        width: 100%;
+        height: 400px;
+    }
+</style>
+
+<div class="hero-section" data-aos="fade-up">
+    <h1 class="hero-title">Welcome to Elephants</h1>
+    <p class="hero-description">
+        A revolutionary project leveraging drones and AI to optimize oil field discovery and management.
+    </p>
+</div>
+
+<div class="section problem" data-aos="fade-up">
+    <h2>The Problem</h2>
+    <p>
+        With global energy demands rising, locating oil reserves efficiently is critical for sustainable development. 
+        Traditional exploration methods are time-consuming, expensive, and often environmentally invasive.
+        Our project aims to address these challenges using drone technology and advanced mapping techniques to identify 
+        oil fields while minimizing environmental impact.
+    </p>
+</div>
+
+<div class="section solutions" data-aos="fade-up">
+    <h2>Our Solution</h2>
+    <p>
+        By deploying drones equipped with sensors and AI models, we automate the discovery and analysis of oil fields. 
+        Interactive maps provide real-time insights, enabling better decision-making and reducing exploration costs.
+    </p>
+</div>
+
+<div class="section graphs" data-aos="fade-up">
+    <h2>Insights and Analytics</h2>
+    <p>
+        Below are some interactive visualizations showcasing trends and data related to global oil exploration.
+    </p>
+    <div class="graph-container">
+        <iframe src="https://ourworldindata.org/grapher/oil-production-by-region" title="Oil Production by Region"></iframe>
+    </div>
+    <div class="graph-container">
+        <iframe src="https://ourworldindata.org/grapher/oil-consumption-by-country?tab=map" loading="lazy" style="width: 100%; height: 600px; border: 0px none;" allow="web-share; clipboard-write"></iframe>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 800, // Animation duration
+        offset: 120, // Offset from the original trigger point
+    });
+</script>
+{% endblock %}

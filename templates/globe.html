@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Earth Model</title>
+    <style>
+        html, body {
+            margin: 0;
+            overflow: hidden;
+            height: 100%;
+            background-color: #000000;
+        }
+
+        canvas { display: block; }
+
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button, input {
+            background-color: #005f73;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 150px;
+        }
+
+        button:hover {
+            background-color: #2f3448;
+        }
+
+        .input-coordinates {
+            background-color: #005f73;
+            padding: 10px;
+            border-radius: 10px;
+            color: white;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            
+        }
+
+    #popup {
+        position: fixed;
+        margin: 10px;
+        top: 0;
+        left: 0; 
+        width: 300px;
+        height: 400px; 
+        background-color: rgba(2, 133, 133, 0.8); 
+        border-radius: 20px;
+        color: white;
+        padding: 20px;
+        box-sizing: border-box;
+        display: none; 
+        z-index: 10;
+        overflow-y: auto; 
+    }
+
+    #popup h2 {
+        margin-top: 0;
+        font-size: 1.5em;
+        
+    }
+
+    #popup p {
+        margin: 10px 0;
+        line-height: 1.6;
+        
+    }
+
+    #popup img {
+        width: 100%; 
+    height: auto; 
+    border-radius: 10px;
+    margin-bottom: 10px;
+    object-fit: cover;
+    }
+
+    #popup button {
+        background-color: #005f73;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    #popup button:hover {
+        background-color: #2f3448;
+    }
+</style>
+
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <button id="toggleRotation">Toggle Rotation</button>
+        <button id="toggleLines">Toggle Lines</button>
+    </div>
+
+    <div id="popup">
+        <h2>Point Information</h2>
+        <img src="" alt="Image" id="popupImage">
+        <p id="popupDescription">Click a point to see details.</p>
+    </div>
+    
+
+
+    <div class="input-coordinates">
+        <label for="latInput">Lat:</label>
+        <input type="number" id="latInput" value="0"><br>
+        <label for="lonInput">Lon:</label>
+        <input type="number" id="lonInput" value="0"><br>
+        <button id="setCoordinates">Set</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        let scene, camera, renderer, mars, point, pulseFactor = 1, diffractionSphere, controls, isRotating = false;
+        let rotationSpeed = 0.005;
+        let linesVisible = true;
+        let points = [];
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let popup = document.getElementById("popup");
+
+        const pointData = [
+    { 
+        lat: 9, 
+        lon: -71,                        
+        info: "Lagunillas Oil Field; Country: Venezuela; OPEC Reserves (millions of barrels) 303,220; Oil production (barrel/day) 852000; Years of production in reserve 978",
+        image: "/static/laguna.jpg" 
+    },
+    { 
+        lat: 25, 
+        lon: 49, 
+        info: "Ghawar Oil Field; Country: Saudi Arabia; OPEC Reserves (millions of barrels) 267230; Oil production (barrel/day) 8950000; Years of production in reserve 79", 
+        image: "/static/ghawar.jpg" 
+    },
+    { 
+        lat: 31, 
+        lon: 48, 
+        info: "Ghawar Oil Field; Country: Iran; OPEC Reserves (millions of barrels) 208,600; Oil production (barrel/day) 4,084,000; Years of production in reserve 140", 
+        image: "/static/ahvaz.jpg" 
+    },
+    { 
+        lat: 57, 
+        lon: -111, 
+        info: "Athabasca Oil Sands; Country: Canada; OPEC Reserves (millions of barrels) 4421; Oil production (barrel/day) 4971000; Years of production in reserve 94", 
+        image: "/static/athabasca.jpeg" 
+    },
+    { 
+        lat: 30, 
+        lon: 47, 
+        info: "Rumaila Oil Field; Country: Iraq; OPEC Reserves (millions of barrels) 147223; Oil production (barrel/day) 4375000; Years of production in reserve 91", 
+        image: "/static/rumailo.jpg" 
+    },
+    { 
+        lat: 28, 
+        lon: 48, 
+        info: "Burgan Oil Field; Country: Kuwait; OPEC Reserves (millions of barrels) 104000; Oil production (barrel/day) 2644000; Years of production in reserve 106", 
+        image: "/static/burgan.jpg" 
+    },
+    { 
+        lat: 28, 
+        lon: 48, 
+        info: "Zakum Oil Field; Country: UAE(United Arab Emirates); OPEC Reserves (millions of barrels) 113000; Oil production (barrel/day) 3300000; Years of production in reserve 81", 
+        image: "/static/zakum.jpg" 
+    },
+    { 
+        lat: 61, 
+        lon: 76, 
+        info: "Samotlor Oil Field; Country: Russia; OPEC Reserves (millions of barrels) 99000; Oil production (barrel/day) 10126000; Years of production in reserve 22", 
+        image: "/static/samotlar.jpg" 
+    },
+    { 
+        lat: 32, 
+        lon: -102, 
+        info: "Permian Basin Oil Field; Country: USA(United States of America); OPEC Reserves (millions of barrels) 68000; Oil production (barrel/day) 13295000; Years of production in reserve 15", 
+        image: "/static/permian.jpeg" 
+    },
+    { 
+        lat: 46, 
+        lon: 52, 
+        info: "Tengiz Oil Field; Country: Kazakhstan; OPEC Reserves (millions of barrels) 30000; Oil production (barrel/day) 1897000; Years of production in reserve 43", 
+        image: "/static/tengiz.jpg" 
+    },
+];
+
+        const radius = 1;
+        const offset = 0.01;
+        let equator, meridians = [], parallels = [];
+
+        
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 3;
+
+            
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x00000 , 1); 
+            document.body.appendChild(renderer.domElement);
+
+            const textureLoader = new THREE.TextureLoader();
+            const marsTexture = textureLoader.load('/static/earth.jpg');
+
+            const marsGeometry = new THREE.SphereGeometry(radius, 64, 64);
+            const marsMaterial = new THREE.MeshBasicMaterial({ map: marsTexture });
+            mars = new THREE.Mesh(marsGeometry, marsMaterial);
+            scene.add(mars);
+
+            const pointGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+            const pointMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            point = new THREE.Mesh(pointGeometry, pointMaterial);
+            mars.add(point);
+
+            const diffractionGeometry = new THREE.SphereGeometry(0.03, 16, 16);
+            const diffractionMaterial = new THREE.MeshBasicMaterial({ color: 0x00000, transparent: true, opacity: 0.5 });
+            diffractionSphere = new THREE.Mesh(diffractionGeometry, diffractionMaterial);
+            mars.add(diffractionSphere);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+            scene.add(ambientLight);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.minDistance = 1.2;
+            controls.maxDistance = 10;
+
+            drawEquatorMeridiansAndParallels(radius + offset, 32, mars);
+            createPoints();
+        }
+
+
+        function drawEquatorMeridiansAndParallels(radius, meridianCount, planet) {
+            const material = new THREE.LineBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.5 });
+            const equatorPoints = [];
+            for (let i = 0; i <= 64; i++) {
+                const theta = (i / 64) * Math.PI * 2;
+                const x = radius * Math.cos(theta);
+                const z = radius * Math.sin(theta);
+                equatorPoints.push(new THREE.Vector3(x, 0, z));
+            }
+            const equatorGeometry = new THREE.BufferGeometry().setFromPoints(equatorPoints);
+            equator = new THREE.Line(equatorGeometry, material);
+            planet.add(equator);
+
+            for (let i = 0; i < meridianCount; i++) {
+                const meridianPoints = [];
+                const phi = (i / meridianCount) * Math.PI * 2;
+
+                for (let j = 0; j <= 32; j++) {
+                    const theta = (j / 32) * Math.PI;
+                    const x = radius * Math.sin(theta) * Math.cos(phi);
+                    const y = radius * Math.cos(theta);
+                    const z = radius * Math.sin(theta) * Math.sin(phi);
+                    meridianPoints.push(new THREE.Vector3(x, y, z));
+                }
+
+                const meridianGeometry = new THREE.BufferGeometry().setFromPoints(meridianPoints);
+                const meridian = new THREE.Line(meridianGeometry, material);
+                meridians.push(meridian);
+                planet.add(meridian);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            pulseFactor += 0.02;
+
+            const scale = 1 + Math.sin(pulseFactor) * 0.5;
+            point.scale.set(scale, scale, scale);
+
+            if (isRotating) {
+                mars.rotation.y += rotationSpeed;
+            }
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function setPointOnMars(lat, lon) {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lon + 180) * (Math.PI / 180);
+            const x = -(radius * Math.sin(phi) * Math.cos(theta));
+            const y = radius * Math.cos(phi);
+            const z = radius * Math.sin(phi) * Math.sin(theta);
+            point.position.set(x, y, z);
+            diffractionSphere.position.set(x, y, z);
+            console.log("PointX", x)
+            console.log("PointY", y)
+            console.log("PointZ", z)
+        }
+
+        function setCameraPerspective(lat, lon, distance = 1) {
+        const phi = (90 - lat) * (Math.PI / 180); 
+        const theta = (lon + 180) * (Math.PI / 180);    
+        const coef = 2.5
+
+        const cameraX = -(distance * Math.sin(phi) * Math.cos(theta))*coef;
+        const cameraY = distance * Math.cos(phi)*(coef + 0.32);
+        const cameraZ = distance * Math.sin(phi) * Math.sin(theta)*coef;
+
+        // Set camera position
+        camera.position.set(cameraX, cameraY, cameraZ);
+
+        const markerPhi = (90 - lat) * (Math.PI / 180); 
+        const markerTheta = (lon + 180) * (Math.PI / 180); 
+        const markerX = -(radius * Math.sin(markerPhi) * Math.cos(markerTheta));
+        const markerY = radius * Math.cos(markerPhi);
+        const markerZ = radius * Math.sin(markerPhi) * Math.sin(markerTheta);
+
+        camera.lookAt(markerX, markerY, markerZ); 
+        controls.update(); 
+        console.log("CamX", cameraX)
+        console.log("CamY", cameraY)
+        console.log("CamZ", cameraZ)
+        }
+
+        function createPoints() {
+    const pointGeometry = new THREE.SphereGeometry(0.03, 16, 16);
+    const pointMaterial = new THREE.MeshBasicMaterial({ color: 0xff1100 });
+
+    pointData.forEach(({ lat, lon, info, image }) => {
+        const phi = (90 - lat) * (Math.PI / 180);
+        const theta = (lon + 180) * (Math.PI / 180);
+
+        const x = -(radius * Math.sin(phi) * Math.cos(theta));
+        const y = radius * Math.cos(phi);
+        const z = radius * Math.sin(phi) * Math.sin(theta);
+
+        const point = new THREE.Mesh(pointGeometry, pointMaterial);
+        point.position.set(x, y, z);
+
+        point.userData = { info, image }; 
+
+        mars.add(point); 
+        points.push(point);
+    });
+}
+
+
+
+
+    function onMouseClick(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(points);
+
+    if (intersects.length > 0) {
+        const intersectedPoint = intersects[0].object;
+        const { info, image } = intersectedPoint.userData;
+
+        const popup = document.getElementById("popup");
+        document.getElementById("popupDescription").innerText = info;
+
+        const popupImage = document.getElementById("popupImage");
+        popupImage.src = image || "http://127.0.0.1:5500/images/default.jpg";
+        console.log("rara", image)
+        popup.style.display = "block";
+
+        
+    }
+}
+
+
+    
+
+
+
+        document.getElementById('setCoordinates').addEventListener('click', () => {
+            const lat = parseFloat(document.getElementById('latInput').value);
+            const lon = parseFloat(document.getElementById('lonInput').value);
+            setPointOnMars(lat, lon);
+            setCameraPerspective(lat, lon)
+        });
+
+        document.getElementById('toggleRotation').addEventListener('click', () => {
+            isRotating = !isRotating;
+
+            const toggleRotationButton = document.getElementById('toggleRotation');
+            toggleRotationButton.textContent = isRotating ? "Stop Rotation" : "Start Rotation";
+        });
+
+        document.getElementById('toggleLines').addEventListener('click', () => {
+            linesVisible = !linesVisible;
+            equator.visible = linesVisible;
+            meridians.forEach(meridian => meridian.visible = linesVisible);
+        });
+
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+        window.addEventListener("click", onMouseClick);
+       
+
+        init();
+        animate();
+        setPointOnMars(4.502384, 135.623447); 
+    </script>
+</body>
+</html>

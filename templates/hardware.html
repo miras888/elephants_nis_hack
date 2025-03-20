@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Drone Technology
+{% endblock %}
+
+{% block main %}
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+</head>
+<style>
+    .hero-section {
+        background-color: #003366;
+        color: #f8f9fa;
+        padding: 50px 20px;
+        text-align: center;
+        border-radius: 10px;
+        margin-bottom: 40px;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .hero-description {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+    }
+
+    .section {
+        padding: 50px 20px;
+        margin-bottom: 40px;
+        border-radius: 10px;
+        background-color: #e6f7f8;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .section h2 {
+        text-align: center;
+        color: #003366;
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    .problem p, .solutions p, .features p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .features {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .features .feature-item {
+        flex: 1 1 calc(33% - 20px);
+        margin: 10px;
+        padding: 20px;
+        background-color: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .features .feature-item h3 {
+        font-size: 1.5rem;
+        color: #005f73;
+        margin-bottom: 10px;
+    }
+
+    .features .feature-item p {
+        font-size: 1rem;
+        color: #003366;
+    }
+
+    .graph-container {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .graph-container iframe {
+        border: none;
+        width: 100%;
+        height: 400px;
+    }
+</style>
+
+<div class="hero-section" data-aos="fade-up">
+    <h1 class="hero-title">Drone Technology in Elephants</h1>
+    <p class="hero-description">
+        Discover how drones revolutionize water quality monitoring with precision and efficiency.
+    </p>
+</div>
+
+<div class="section problem" data-aos="fade-up">
+    <h2>Challenges Addressed</h2>
+    <p>
+        Monitoring water quality over large areas is a labor-intensive and time-consuming process. 
+        Traditional methods often lack the precision required for real-time insights and frequently disrupt aquatic ecosystems. 
+        The Elephants Project leverages drone technology to overcome these challenges with minimal environmental impact.
+    </p>
+</div>
+
+<div class="section solutions" data-aos="fade-up">
+    <h2>Our Drone Solution</h2>
+    <p>
+        Each drone in the Elephants Project is equipped with advanced sensors to measure parameters like pH levels, dissolved oxygen, 
+        and pollutant concentrations. These drones operate autonomously, scanning the water's surface and transmitting data to 
+        a central hub in real-time for visualization and analysis.
+    </p>
+    <p>
+        Powered by a wireless charging dock integrated into the main boat, the drones can operate continuously, ensuring 
+        comprehensive coverage of large water bodies without frequent manual intervention.
+    </p>
+</div>
+
+<div class="section features" data-aos="fade-up">
+    <h2>Key Features of Our Drones</h2>
+
+    <div class="feature-item">
+        <h3>Autonomous Operation</h3>
+        <p>
+            Drones are programmed to follow predefined paths, ensuring efficient and consistent coverage of the target water body.
+        </p>
+    </div>
+    <div class="feature-item">
+        <h3>Advanced Sensors</h3>
+        <p>
+            High-precision sensors detect chemical and physical parameters with unparalleled accuracy.
+        </p>
+    </div>
+    <div class="feature-item">
+        <h3>Eco-Friendly Design</h3>
+        <p>
+            Lightweight, quiet drones minimize disturbance to aquatic life while maintaining efficiency.
+        </p>
+    </div>
+    <div class="feature-item">
+        <h3>Real-Time Data</h3>
+        <p>
+            Drones transmit data wirelessly to the monitoring system, providing up-to-the-minute analytics.
+        </p>
+    </div>
+    <div class="feature-item">
+        <h3>Scalability</h3>
+        <p>
+            Modular design allows the deployment of multiple drones for large-scale operations.
+        </p>
+    </div>
+    <div class="feature-item">
+        <h3>Wireless Charging</h3>
+        <p>
+            Drones dock at the boat for wireless charging, ensuring uninterrupted operations.
+        </p>
+    </div>
+</div>
+
+<div class="section graphs" data-aos="fade-up">
+    <h2>Visualizing Drone Impact</h2>
+    <p>
+        Explore data visualizations highlighting the coverage and impact of our drones in water quality monitoring.
+    </p>
+    <div class="graph-container">
+        <iframe src="https://ourworldindata.org/grapher/number-oil-spills?tab=chart" loading="lazy" style="width: 100%; height: 600px; border: 0px none;" allow="web-share; clipboard-write"></iframe>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 800, 
+        offset: 120, 
+    });
+</script>
+{% endblock %}
